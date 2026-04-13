@@ -521,7 +521,7 @@ function GewerklyOnboarding() {
                   <button
                     onClick={() => {
                       const recordId = new URLSearchParams(window.location.search).get("record_id") || "";
-                      const stripeUrl = "STRIPE_PAYMENT_LINK_PLACEHOLDER" + (recordId ? "?client_reference_id=" + encodeURIComponent(recordId) : "");
+                      const stripeUrl = "https://buy.stripe.com/test_28EaEWeKl2eS8R7etJg7e00" + (recordId ? "?client_reference_id=" + encodeURIComponent(recordId) : "");
                       window.open(stripeUrl, "_blank");
                       setPollingPayment(true);
                       setPollingTimeout(false);
