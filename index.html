@@ -90,6 +90,8 @@ function Input({ label, value, onChange, type = "text", placeholder, required, d
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         disabled={disabled}
+        required={required}
+        aria-required={required ? "true" : undefined}
         style={{
           width: "100%", padding: "12px 16px", fontSize: 15,
           border: "1.5px solid #ddddd5", borderRadius: 8,
@@ -106,17 +108,19 @@ function Input({ label, value, onChange, type = "text", placeholder, required, d
   );
 }
 
-function Textarea({ label, value, onChange, placeholder, rows = 4 }) {
+function Textarea({ label, value, onChange, placeholder, rows = 4, required = false }) {
   return (
     <div style={{ marginBottom: "1.25rem" }}>
       <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "#5a5a52", marginBottom: 6, letterSpacing: "0.02em" }}>
-        {label}
+        {label} {required && <span style={{ color: "#b5442d" }}>*</span>}
       </label>
       <textarea
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         rows={rows}
+        required={required}
+        aria-required={required ? "true" : undefined}
         style={{
           width: "100%", padding: "12px 16px", fontSize: 15,
           border: "1.5px solid #ddddd5", borderRadius: 8,
@@ -133,13 +137,22 @@ function Textarea({ label, value, onChange, placeholder, rows = 4 }) {
   );
 }
 
-function Checkbox({ label, checked, onChange, style: extraStyle }) {
+function Checkbox({ label, checked, onChange, style: extraStyle, required = false }) {
   return (
     <label style={{
       display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer",
       marginBottom: 10, fontSize: 14, color: "#3a3a38", lineHeight: 1.5,
       ...extraStyle
     }}>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={() => {}}
+        required={required}
+        aria-required={required ? "true" : undefined}
+        tabIndex={-1}
+        style={{ position: "absolute", opacity: 0, width: 0, height: 0, pointerEvents: "none" }}
+      />
       <div
         onClick={e => { e.preventDefault(); onChange(!checked); }}
         style={{
@@ -273,7 +286,7 @@ function GewerklyOnboarding() {
   const prev = () => setStep(s => Math.max(s - 1, 0));
 
   const canNext = () => {
-    if (step === 1) return form.firma && form.ansprechpartner && form.telefon && form.email;
+    if (step === 1) return form.firma && form.ansprechpartner && form.telefon && form.email && form.adresse && form.plz && form.ort;
     if (step === 2) return form.services.length > 0;
     if (step === 4) return paymentComplete;
     if (step === 5) return form.agb && form.datenschutz && form.widerruf;
@@ -345,10 +358,10 @@ function GewerklyOnboarding() {
               <Input label="Telefon" value={form.telefon} onChange={v => set("telefon", v)} required type="tel" placeholder="0511 1234567" />
               <Input label="E-Mail" value={form.email} onChange={v => set("email", v)} required type="email" placeholder="info@firma.de" />
             </div>
-            <Input label="Straße & Hausnummer" value={form.adresse} onChange={v => set("adresse", v)} placeholder="Musterstraße 12" />
+            <Input label="Straße & Hausnummer" value={form.adresse} onChange={v => set("adresse", v)} required placeholder="Musterstraße 12" />
             <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: 16 }}>
-              <Input label="PLZ" value={form.plz} onChange={v => set("plz", v)} placeholder="30159" />
-              <Input label="Ort" value={form.ort} onChange={v => set("ort", v)} placeholder="Hannover" />
+              <Input label="PLZ" value={form.plz} onChange={v => set("plz", v)} required placeholder="30159" />
+              <Input label="Ort" value={form.ort} onChange={v => set("ort", v)} required placeholder="Hannover" />
             </div>
           </div>
         );
@@ -521,7 +534,7 @@ function GewerklyOnboarding() {
                   <button
                     onClick={() => {
                       const recordId = new URLSearchParams(window.location.search).get("record_id") || "";
-                      const stripeUrl = "https://buy.stripe.com/test_28EaEWeKl2eS8R7etJg7e00" + (recordId ? "?client_reference_id=" + encodeURIComponent(recordId) : "");
+                      const stripeUrl = "STRIPE_PAYMENT_LINK_PLACEHOLDER" + (recordId ? "?client_reference_id=" + encodeURIComponent(recordId) : "");
                       window.open(stripeUrl, "_blank");
                       setPollingPayment(true);
                       setPollingTimeout(false);
@@ -592,19 +605,19 @@ function GewerklyOnboarding() {
                 checked={form.agb}
                 onChange={v => set("agb", v)}
                 style={{ marginBottom: 16 }}
-              />
+               required />
               <Checkbox
                 label={<span>Ich habe die <a href="#" style={{ color: "#1a5c3a", textDecoration: "underline" }}>Datenschutzerklärung</a> zur Kenntnis genommen und stimme der Verarbeitung meiner Daten zu.</span>}
                 checked={form.datenschutz}
                 onChange={v => set("datenschutz", v)}
                 style={{ marginBottom: 16 }}
-              />
+               required />
               <Checkbox
                 label={<span>Ich habe die <a href="#" style={{ color: "#1a5c3a", textDecoration: "underline" }} onClick={e => { e.preventDefault(); setLegalModal("garantie"); }}>30-Tage-Zufriedenheitsgarantie</a> zur Kenntnis genommen.</span>}
                 checked={form.widerruf}
                 onChange={v => set("widerruf", v)}
                 style={{ marginBottom: 0 }}
-              />
+               required />
             </div>
 
             <div style={{ background: "#f0efe8", borderRadius: 10, padding: "1rem 1.25rem", fontSize: 13, color: "#6a6a62", lineHeight: 1.7 }}>
